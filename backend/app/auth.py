@@ -47,10 +47,11 @@ def get_current_employee(
         payload = jwt.decode(
             token, settings.secret_key, algorithms=[settings.algorithm]
         )
-        employee_id: int | None = payload.get("sub")
-        if employee_id is None:
+        sub = payload.get("sub")
+        if sub is None:
             raise credentials_exception
-    except JWTError:
+        employee_id = int(sub)
+    except (JWTError, ValueError):
         raise credentials_exception
 
     employee = db.query(Employee).filter(Employee.id == employee_id).first()

@@ -31,7 +31,7 @@ def login(
             detail="このアカウントは無効です",
         )
     access_token = create_access_token(
-        data={"sub": employee.id, "tenant_id": employee.tenant_id}
+        data={"sub": str(employee.id), "tenant_id": employee.tenant_id}
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
