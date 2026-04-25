@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from app.auth import get_current_employee
 from app.database import get_db
-from app.models.master import BusinessPartner
+from app.models.master import BusinessPartner, Employee
 from app.models.tenant import Tenant
 from app.schemas.master import BusinessPartnerCreate, BusinessPartnerResponse, BusinessPartnerUpdate
 from app.tenant import get_current_tenant
@@ -27,6 +28,7 @@ def list_partners(
 @router.post("/", response_model=BusinessPartnerResponse, status_code=201)
 def create_partner(
     data: BusinessPartnerCreate,
+    current_employee: Employee = Depends(get_current_employee),
     tenant: Tenant = Depends(get_current_tenant),
     db: Session = Depends(get_db),
 ) -> BusinessPartner:
@@ -57,6 +59,7 @@ def get_partner(
 def update_partner(
     partner_id: int,
     data: BusinessPartnerUpdate,
+    current_employee: Employee = Depends(get_current_employee),
     tenant: Tenant = Depends(get_current_tenant),
     db: Session = Depends(get_db),
 ) -> BusinessPartner:
@@ -77,6 +80,7 @@ def update_partner(
 @router.delete("/{partner_id}", status_code=204)
 def delete_partner(
     partner_id: int,
+    current_employee: Employee = Depends(get_current_employee),
     tenant: Tenant = Depends(get_current_tenant),
     db: Session = Depends(get_db),
 ) -> None:

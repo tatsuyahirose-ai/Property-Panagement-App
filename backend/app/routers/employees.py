@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
-from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 
+from app.auth import get_current_employee, get_password_hash
 from app.database import get_db
 from app.models.master import Employee
 from app.models.tenant import Tenant
@@ -9,8 +9,6 @@ from app.schemas.master import EmployeeCreate, EmployeeResponse, EmployeeUpdate
 from app.tenant import get_current_tenant
 
 router = APIRouter(prefix="/api/v1/employees", tags=["社員管理"])
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 @router.get("/", response_model=list[EmployeeResponse])
@@ -33,6 +31,7 @@ def list_employees(
 @router.post("/", response_model=EmployeeResponse, status_code=201)
 def create_employee(
     data: EmployeeCreate,
+    current_employee: Employee = Depends(get_current_employee),
     tenant: Tenant = Depends(get_current_tenant),
     db: Session = Depends(get_db),
 ) -> Employee:
@@ -40,7 +39,7 @@ def create_employee(
     if existing:
         raise HTTPException(status_code=400, detail="このメールアドレスは既に使用されています")
     employee_data = data.model_dump(exclude={"password"})
-    employee_data["password_hash"] = pwd_context.hash(data.password)
+    employee_data["password_hash"] = get_password_hash(data.password)
     employee_data["tenant_id"] = tenant.id
     employee = Employee(**employee_data)
     db.add(employee)
@@ -65,6 +64,7 @@ def get_employee(
 def update_employee(
     employee_id: int,
     data: EmployeeUpdate,
+    current_employee: Employee = Depends(get_current_employee),
     tenant: Tenant = Depends(get_current_tenant),
     db: Session = Depends(get_db),
 ) -> Employee:

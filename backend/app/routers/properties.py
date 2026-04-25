@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from app.auth import get_current_employee
 from app.database import get_db
-from app.models.master import Property
+from app.models.master import Employee, Property
 from app.models.tenant import Tenant
 from app.schemas.master import PropertyCreate, PropertyResponse, PropertyUpdate
 from app.tenant import get_current_tenant
@@ -30,6 +31,7 @@ def list_properties(
 @router.post("/", response_model=PropertyResponse, status_code=201)
 def create_property(
     data: PropertyCreate,
+    current_employee: Employee = Depends(get_current_employee),
     tenant: Tenant = Depends(get_current_tenant),
     db: Session = Depends(get_db),
 ) -> Property:
@@ -56,6 +58,7 @@ def get_property(
 def update_property(
     property_id: int,
     data: PropertyUpdate,
+    current_employee: Employee = Depends(get_current_employee),
     tenant: Tenant = Depends(get_current_tenant),
     db: Session = Depends(get_db),
 ) -> Property:
@@ -72,6 +75,7 @@ def update_property(
 @router.delete("/{property_id}", status_code=204)
 def delete_property(
     property_id: int,
+    current_employee: Employee = Depends(get_current_employee),
     tenant: Tenant = Depends(get_current_tenant),
     db: Session = Depends(get_db),
 ) -> None:

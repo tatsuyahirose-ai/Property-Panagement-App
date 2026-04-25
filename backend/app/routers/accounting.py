@@ -4,8 +4,10 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func as sql_func
 from sqlalchemy.orm import Session
 
+from app.auth import get_current_employee
 from app.database import get_db
 from app.models.accounting import Account, JournalEntry, JournalEntryLine, JournalStatus
+from app.models.master import Employee
 from app.models.tenant import Tenant
 from app.schemas.accounting import (
     AccountCreate,
@@ -41,6 +43,7 @@ def list_accounts(
 @router.post("/accounts", response_model=AccountResponse, status_code=201)
 def create_account(
     data: AccountCreate,
+    current_employee: Employee = Depends(get_current_employee),
     tenant: Tenant = Depends(get_current_tenant),
     db: Session = Depends(get_db),
 ) -> Account:
@@ -60,6 +63,7 @@ def create_account(
 def update_account(
     account_id: int,
     data: AccountUpdate,
+    current_employee: Employee = Depends(get_current_employee),
     tenant: Tenant = Depends(get_current_tenant),
     db: Session = Depends(get_db),
 ) -> Account:
@@ -97,6 +101,7 @@ def list_journal_entries(
 @router.post("/journal-entries", response_model=JournalEntryResponse, status_code=201)
 def create_journal_entry(
     data: JournalEntryCreate,
+    current_employee: Employee = Depends(get_current_employee),
     tenant: Tenant = Depends(get_current_tenant),
     db: Session = Depends(get_db),
 ) -> JournalEntry:
@@ -136,6 +141,7 @@ def get_journal_entry(
 def update_journal_entry(
     entry_id: int,
     data: JournalEntryUpdate,
+    current_employee: Employee = Depends(get_current_employee),
     tenant: Tenant = Depends(get_current_tenant),
     db: Session = Depends(get_db),
 ) -> JournalEntry:
@@ -155,6 +161,7 @@ def update_journal_entry(
 def approve_journal_entry(
     entry_id: int,
     approved_by: int,
+    current_employee: Employee = Depends(get_current_employee),
     tenant: Tenant = Depends(get_current_tenant),
     db: Session = Depends(get_db),
 ) -> JournalEntry:

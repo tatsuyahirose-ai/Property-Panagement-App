@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from app.auth import get_current_employee
 from app.database import get_db
-from app.models.master import Department
+from app.models.master import Department, Employee
 from app.models.tenant import Tenant
 from app.schemas.master import DepartmentCreate, DepartmentResponse, DepartmentUpdate
 from app.tenant import get_current_tenant
@@ -23,6 +24,7 @@ def list_departments(
 @router.post("/", response_model=DepartmentResponse, status_code=201)
 def create_department(
     data: DepartmentCreate,
+    current_employee: Employee = Depends(get_current_employee),
     tenant: Tenant = Depends(get_current_tenant),
     db: Session = Depends(get_db),
 ) -> Department:
@@ -49,6 +51,7 @@ def get_department(
 def update_department(
     department_id: int,
     data: DepartmentUpdate,
+    current_employee: Employee = Depends(get_current_employee),
     tenant: Tenant = Depends(get_current_tenant),
     db: Session = Depends(get_db),
 ) -> Department:
@@ -65,6 +68,7 @@ def update_department(
 @router.delete("/{department_id}", status_code=204)
 def delete_department(
     department_id: int,
+    current_employee: Employee = Depends(get_current_employee),
     tenant: Tenant = Depends(get_current_tenant),
     db: Session = Depends(get_db),
 ) -> None:

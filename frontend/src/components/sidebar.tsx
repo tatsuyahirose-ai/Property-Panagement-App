@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/context/auth-context";
 
 const navigation = [
   { name: "ダッシュボード", href: "/", icon: "📊" },
@@ -18,16 +19,24 @@ const navigation = [
   { name: "ドキュメント", href: "/documents", icon: "📄" },
 ];
 
+const roleLabels: Record<string, string> = {
+  admin: "管理者",
+  manager: "マネージャー",
+  staff: "スタッフ",
+  viewer: "閲覧者",
+};
+
 export default function Sidebar() {
   const pathname = usePathname();
+  const { user, logout } = useAuth();
 
   return (
-    <aside className="w-64 bg-white border-r border-gray-200 min-h-screen">
+    <aside className="flex w-64 flex-col bg-white border-r border-gray-200 min-h-screen">
       <div className="p-4 border-b border-gray-200">
         <h1 className="text-lg font-bold text-gray-900">不動産業務管理</h1>
         <p className="text-xs text-gray-500 mt-1">マルチテナント対応</p>
       </div>
-      <nav className="p-2">
+      <nav className="flex-1 p-2">
         {navigation.map((item) => {
           const isActive =
             pathname === item.href ||
@@ -48,6 +57,23 @@ export default function Sidebar() {
           );
         })}
       </nav>
+      {user && (
+        <div className="border-t border-gray-200 p-4">
+          <div className="mb-2">
+            <p className="text-sm font-medium text-gray-900">{user.name}</p>
+            <p className="text-xs text-gray-500">{user.email}</p>
+            <span className="mt-1 inline-block rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700">
+              {roleLabels[user.role] || user.role}
+            </span>
+          </div>
+          <button
+            onClick={logout}
+            className="w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
+          >
+            ログアウト
+          </button>
+        </div>
+      )}
     </aside>
   );
 }

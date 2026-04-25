@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from app.auth import get_current_employee
 from app.database import get_db
 from app.models.kpi import KpiTarget
+from app.models.master import Employee
 from app.models.tenant import Tenant
 from app.schemas.kpi import (
     KpiDashboardItem,
@@ -37,6 +39,7 @@ def list_kpi_targets(
 @router.post("/targets", response_model=KpiTargetResponse, status_code=201)
 def create_kpi_target(
     data: KpiTargetCreate,
+    current_employee: Employee = Depends(get_current_employee),
     tenant: Tenant = Depends(get_current_tenant),
     db: Session = Depends(get_db),
 ) -> KpiTarget:
@@ -51,6 +54,7 @@ def create_kpi_target(
 def update_kpi_target(
     target_id: int,
     data: KpiTargetUpdate,
+    current_employee: Employee = Depends(get_current_employee),
     tenant: Tenant = Depends(get_current_tenant),
     db: Session = Depends(get_db),
 ) -> KpiTarget:

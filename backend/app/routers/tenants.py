@@ -1,7 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from app.auth import get_current_employee
 from app.database import get_db
+from app.models.master import Employee
 from app.models.tenant import Tenant
 from app.schemas.tenant import TenantCreate, TenantResponse, TenantUpdate
 
@@ -18,7 +20,11 @@ def list_tenants(
 
 
 @router.post("/", response_model=TenantResponse, status_code=201)
-def create_tenant(data: TenantCreate, db: Session = Depends(get_db)) -> Tenant:
+def create_tenant(
+    data: TenantCreate,
+    current_employee: Employee = Depends(get_current_employee),
+    db: Session = Depends(get_db),
+) -> Tenant:
     existing = db.query(Tenant).filter(Tenant.slug == data.slug).first()
     if existing:
         raise HTTPException(status_code=400, detail="このスラッグは既に使用されています")
@@ -38,7 +44,12 @@ def get_tenant(tenant_id: int, db: Session = Depends(get_db)) -> Tenant:
 
 
 @router.put("/{tenant_id}", response_model=TenantResponse)
-def update_tenant(tenant_id: int, data: TenantUpdate, db: Session = Depends(get_db)) -> Tenant:
+def update_tenant(
+    tenant_id: int,
+    data: TenantUpdate,
+    current_employee: Employee = Depends(get_current_employee),
+    db: Session = Depends(get_db),
+) -> Tenant:
     tenant = db.query(Tenant).filter(Tenant.id == tenant_id).first()
     if not tenant:
         raise HTTPException(status_code=404, detail="テナントが見つかりません")

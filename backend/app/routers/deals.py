@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from app.auth import get_current_employee
 from app.database import get_db
 from app.models.deal import Deal
+from app.models.master import Employee
 from app.models.tenant import Tenant
 from app.schemas.deal import DealCreate, DealResponse, DealUpdate
 from app.tenant import get_current_tenant
@@ -33,6 +35,7 @@ def list_deals(
 @router.post("/", response_model=DealResponse, status_code=201)
 def create_deal(
     data: DealCreate,
+    current_employee: Employee = Depends(get_current_employee),
     tenant: Tenant = Depends(get_current_tenant),
     db: Session = Depends(get_db),
 ) -> Deal:
@@ -59,6 +62,7 @@ def get_deal(
 def update_deal(
     deal_id: int,
     data: DealUpdate,
+    current_employee: Employee = Depends(get_current_employee),
     tenant: Tenant = Depends(get_current_tenant),
     db: Session = Depends(get_db),
 ) -> Deal:
@@ -76,6 +80,7 @@ def update_deal(
 def update_deal_stage(
     deal_id: int,
     stage: str,
+    current_employee: Employee = Depends(get_current_employee),
     tenant: Tenant = Depends(get_current_tenant),
     db: Session = Depends(get_db),
 ) -> Deal:
