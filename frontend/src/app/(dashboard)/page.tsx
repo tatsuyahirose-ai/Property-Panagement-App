@@ -1,9 +1,9 @@
-const kpiCards = [
-  { label: "管理物件数", value: "0", unit: "件", color: "bg-blue-500" },
-  { label: "今月売上", value: "¥0", unit: "", color: "bg-green-500" },
-  { label: "成約率", value: "0", unit: "%", color: "bg-purple-500" },
-  { label: "入居率", value: "0", unit: "%", color: "bg-orange-500" },
-];
+"use client";
+
+import { useEffect, useState } from "react";
+import { useAuth } from "@/context/auth-context";
+import { apiFetch } from "@/lib/api-client";
+import type { Property, KpiDashboardItem } from "@/lib/types";
 
 const modules = [
   {
@@ -39,7 +39,67 @@ const modules = [
   },
 ];
 
+interface KpiCardData {
+  label: string;
+  value: string;
+  unit: string;
+  color: string;
+}
+
 export default function DashboardPage() {
+  const { user } = useAuth();
+  const [kpiCards, setKpiCards] = useState<KpiCardData[]>([
+    { label: "管理物件数", value: "-", unit: "件", color: "bg-blue-500" },
+    { label: "今月売上", value: "-", unit: "", color: "bg-green-500" },
+    { label: "成約率", value: "-", unit: "%", color: "bg-purple-500" },
+    { label: "入居率", value: "-", unit: "%", color: "bg-orange-500" },
+  ]);
+
+  useEffect(() => {
+    if (!user) return;
+    const tenantId = user.tenant_id;
+
+    const fetchKpi = async () => {
+      try {
+        const [properties, kpiItems] = await Promise.all([
+          apiFetch<Property[]>("/api/v1/properties/", { tenantId }).catch(() => [] as Property[]),
+          apiFetch<KpiDashboardItem[]>("/api/v1/kpi/dashboard", { tenantId }).catch(() => [] as KpiDashboardItem[]),
+        ]);
+
+        const propertyCount = properties.length;
+        const salesTarget = kpiItems.find((k) => k.kpi_type === "SALES_TARGET");
+        const closeRate = kpiItems.find((k) => k.kpi_type === "CLOSE_RATE");
+        const occupancy = kpiItems.find((k) => k.kpi_type === "OCCUPANCY_RATE");
+
+        setKpiCards([
+          { label: "管理物件数", value: String(propertyCount), unit: "件", color: "bg-blue-500" },
+          {
+            label: "今月売上",
+            value: salesTarget?.actual_value != null ? `\u00a5${salesTarget.actual_value.toLocaleString()}` : "\u00a50",
+            unit: "",
+            color: "bg-green-500",
+          },
+          {
+            label: "成約率",
+            value: closeRate?.achievement_rate != null ? String(Math.round(closeRate.achievement_rate)) : "0",
+            unit: "%",
+            color: "bg-purple-500",
+          },
+          {
+            label: "入居率",
+            value: occupancy?.actual_value != null ? String(Math.round(occupancy.actual_value)) : "0",
+            unit: "%",
+            color: "bg-orange-500",
+          },
+        ]);
+      } catch {
+        // keep defaults on error
+      }
+    };
+
+    fetchKpi();
+  }, [user]);
+
   return (
     <div>
       <h1 className="text-2xl font-bold text-gray-900 mb-6">ダッシュボード</h1>
