@@ -10,6 +10,7 @@ Usage:
 
 from datetime import date
 
+from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 
 from app.database import SessionLocal
@@ -30,6 +31,9 @@ from app.models.master import (
     PropertyType,
 )
 from app.models.tenant import Tenant
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+DEFAULT_PASSWORD = "password123"
 
 
 def seed_tenants(db: Session) -> Tenant:
@@ -80,7 +84,7 @@ def seed_employees(
         tenant_id=tenant_id,
         name="管理者 太郎",
         email="admin@sample-realty.example.com",
-        password_hash="$2b$12$placeholder_hash_admin",
+        password_hash=pwd_context.hash(DEFAULT_PASSWORD),
         department_id=depts["admin"].id,
         position="代表取締役",
         role=EmployeeRole.ADMIN,
@@ -96,7 +100,7 @@ def seed_employees(
         tenant_id=tenant_id,
         name="営業 花子",
         email="hanako@sample-realty.example.com",
-        password_hash="$2b$12$placeholder_hash_manager",
+        password_hash=pwd_context.hash(DEFAULT_PASSWORD),
         department_id=depts["sales"].id,
         position="営業部長",
         role=EmployeeRole.MANAGER,
@@ -112,7 +116,7 @@ def seed_employees(
         tenant_id=tenant_id,
         name="田中 一郎",
         email="tanaka@sample-realty.example.com",
-        password_hash="$2b$12$placeholder_hash_staff1",
+        password_hash=pwd_context.hash(DEFAULT_PASSWORD),
         department_id=depts["sales"].id,
         position="営業担当",
         role=EmployeeRole.STAFF,
@@ -127,7 +131,7 @@ def seed_employees(
         tenant_id=tenant_id,
         name="佐藤 美咲",
         email="sato@sample-realty.example.com",
-        password_hash="$2b$12$placeholder_hash_staff2",
+        password_hash=pwd_context.hash(DEFAULT_PASSWORD),
         department_id=depts["rental"].id,
         position="管理担当",
         role=EmployeeRole.STAFF,
@@ -142,7 +146,7 @@ def seed_employees(
         tenant_id=tenant_id,
         name="鈴木 経子",
         email="suzuki@sample-realty.example.com",
-        password_hash="$2b$12$placeholder_hash_accountant",
+        password_hash=pwd_context.hash(DEFAULT_PASSWORD),
         department_id=depts["accounting"].id,
         position="経理担当",
         role=EmployeeRole.STAFF,

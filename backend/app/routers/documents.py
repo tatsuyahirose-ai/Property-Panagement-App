@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from app.auth import get_current_employee
 from app.database import get_db
 from app.models.document import Document, DocumentVersion
+from app.models.master import Employee
 from app.models.tenant import Tenant
 from app.schemas.document import (
     DocumentCreate,
@@ -37,6 +39,7 @@ def list_documents(
 @router.post("/", response_model=DocumentResponse, status_code=201)
 def create_document(
     data: DocumentCreate,
+    current_employee: Employee = Depends(get_current_employee),
     tenant: Tenant = Depends(get_current_tenant),
     db: Session = Depends(get_db),
 ) -> Document:
@@ -78,6 +81,7 @@ def get_document(
 def update_document(
     document_id: int,
     data: DocumentUpdate,
+    current_employee: Employee = Depends(get_current_employee),
     tenant: Tenant = Depends(get_current_tenant),
     db: Session = Depends(get_db),
 ) -> Document:
@@ -95,6 +99,7 @@ def update_document(
 def create_document_version(
     document_id: int,
     data: DocumentVersionCreate,
+    current_employee: Employee = Depends(get_current_employee),
     tenant: Tenant = Depends(get_current_tenant),
     db: Session = Depends(get_db),
 ) -> DocumentVersion:
@@ -157,6 +162,7 @@ def get_document_version(
 def approve_document(
     document_id: int,
     approved_by: int,
+    current_employee: Employee = Depends(get_current_employee),
     tenant: Tenant = Depends(get_current_tenant),
     db: Session = Depends(get_db),
 ) -> Document:
@@ -173,6 +179,7 @@ def approve_document(
 @router.delete("/{document_id}", status_code=204)
 def delete_document(
     document_id: int,
+    current_employee: Employee = Depends(get_current_employee),
     tenant: Tenant = Depends(get_current_tenant),
     db: Session = Depends(get_db),
 ) -> None:
