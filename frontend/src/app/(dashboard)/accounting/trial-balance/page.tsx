@@ -62,7 +62,9 @@ export default function TrialBalancePage() {
                   const link = document.createElement("a");
                   link.href = url;
                   link.setAttribute("download", "");
+                  const token = document.cookie.split("; ").find((r) => r.startsWith("access_token="))?.split("=")[1];
                   const headers: Record<string, string> = { "X-Tenant-Id": String(user.tenant_id) };
+                  if (token) headers["Authorization"] = `Bearer ${token}`;
                   fetch(url, { headers, credentials: "include" })
                     .then((res) => {
                       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -72,7 +74,7 @@ export default function TrialBalancePage() {
                       const blobUrl = URL.createObjectURL(blob);
                       link.href = blobUrl;
                       link.click();
-                      URL.revokeObjectURL(blobUrl);
+                      setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
                     })
                     .catch(() => {
                       alert("PDFの取得に失敗しました");

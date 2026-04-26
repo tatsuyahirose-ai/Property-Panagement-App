@@ -253,6 +253,7 @@ TYPE_LABELS = {
 def export_trial_balance_pdf(
     period_start: date,
     period_end: date,
+    current_employee: Employee = Depends(get_current_employee),
     tenant: Tenant = Depends(get_current_tenant),
     db: Session = Depends(get_db),
 ) -> StreamingResponse:
