@@ -7,24 +7,24 @@ import { useApiList, useApiMutate } from "@/hooks/use-api";
 import type { Deal, DealStage } from "@/lib/types";
 
 const stages: { key: DealStage; label: string }[] = [
-  { key: "INQUIRY", label: "問合せ" },
-  { key: "VIEWING", label: "物件案内" },
-  { key: "APPLICATION", label: "申込" },
-  { key: "SCREENING", label: "審査" },
-  { key: "CONTRACT", label: "契約" },
-  { key: "COMPLETED", label: "完了" },
+  { key: "inquiry", label: "問合せ" },
+  { key: "viewing", label: "物件案内" },
+  { key: "application", label: "申込" },
+  { key: "screening", label: "審査" },
+  { key: "contract", label: "契約" },
+  { key: "completed", label: "完了" },
 ];
 
 const dealTypeLabels: Record<string, string> = {
-  RENTAL_BROKERAGE: "賃貸仲介",
-  SALES_BROKERAGE: "売買仲介",
-  PROPERTY_MANAGEMENT: "賃貸管理",
+  rental_brokerage: "賃貸仲介",
+  sales_brokerage: "売買仲介",
+  property_management: "賃貸管理",
 };
 
 const typeOptions = [
-  { value: "RENTAL_BROKERAGE", label: "賃貸仲介" },
-  { value: "SALES_BROKERAGE", label: "売買仲介" },
-  { value: "PROPERTY_MANAGEMENT", label: "賃貸管理" },
+  { value: "rental_brokerage", label: "賃貸仲介" },
+  { value: "sales_brokerage", label: "売買仲介" },
+  { value: "property_management", label: "賃貸管理" },
 ];
 
 const stageOptions = stages.map((s) => ({ value: s.key, label: s.label }));
@@ -36,7 +36,7 @@ interface FormState {
   notes: string;
 }
 
-const emptyForm: FormState = { deal_type: "", stage: "INQUIRY", expected_revenue: "", notes: "" };
+const emptyForm: FormState = { deal_type: "", stage: "inquiry", expected_revenue: "", notes: "" };
 
 export default function DealsPage() {
   const { data, loading, error, refetch } = useApiList<Deal>("/api/v1/deals/");

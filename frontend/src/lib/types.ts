@@ -1,6 +1,6 @@
 // --- Property ---
-export type PropertyType = "APARTMENT" | "MANSION" | "HOUSE" | "LAND" | "BUILDING" | "OTHER";
-export type PropertyStatus = "AVAILABLE" | "CONTRACTED" | "UNAVAILABLE";
+export type PropertyType = "apartment" | "mansion" | "house" | "office" | "store" | "land" | "other";
+export type PropertyStatus = "available" | "contracted" | "unavailable";
 
 export interface Property {
   id: number;
@@ -20,8 +20,8 @@ export interface Property {
 }
 
 // --- Customer ---
-export type CustomerType = "INDIVIDUAL" | "CORPORATE";
-export type CustomerStatus = "PROSPECT" | "ACTIVE" | "INACTIVE";
+export type CustomerType = "individual" | "corporate";
+export type CustomerStatus = "prospect" | "active" | "inactive";
 
 export interface Customer {
   id: number;
@@ -39,7 +39,7 @@ export interface Customer {
 }
 
 // --- BusinessPartner ---
-export type PartnerType = "MANAGEMENT_COMPANY" | "CONSTRUCTION" | "FINANCIAL_INSTITUTION" | "OTHER";
+export type PartnerType = "management_company" | "contractor" | "financial_institution" | "other";
 
 export interface BusinessPartner {
   id: number;
@@ -68,8 +68,8 @@ export interface Department {
 }
 
 // --- Employee ---
-export type EmployeeRole = "ADMIN" | "MANAGER" | "STAFF" | "VIEWER";
-export type EmployeeStatus = "ACTIVE" | "INACTIVE" | "ON_LEAVE" | "RETIRED";
+export type EmployeeRole = "admin" | "manager" | "staff" | "viewer";
+export type EmployeeStatus = "active" | "on_leave" | "retired";
 
 export interface Employee {
   id: number;
@@ -86,9 +86,9 @@ export interface Employee {
 }
 
 // --- Deal ---
-export type DealType = "RENTAL_BROKERAGE" | "SALES_BROKERAGE" | "PROPERTY_MANAGEMENT";
-export type DealStatus = "ACTIVE" | "WON" | "LOST" | "CANCELLED";
-export type DealStage = "INQUIRY" | "VIEWING" | "APPLICATION" | "SCREENING" | "CONTRACT" | "COMPLETED";
+export type DealType = "rental_brokerage" | "sales_brokerage" | "property_management";
+export type DealStatus = "active" | "won" | "lost" | "cancelled";
+export type DealStage = "inquiry" | "viewing" | "application" | "screening" | "contract" | "completed";
 
 export interface Deal {
   id: number;
@@ -108,8 +108,8 @@ export interface Deal {
 }
 
 // --- Account ---
-export type AccountType = "ASSET" | "LIABILITY" | "EQUITY" | "REVENUE" | "EXPENSE";
-export type TaxCategory = "TAXABLE" | "TAX_EXEMPT" | "NON_TAXABLE" | "TAX_FREE_EXPORT";
+export type AccountType = "asset" | "liability" | "equity" | "revenue" | "expense";
+export type TaxCategory = "taxable" | "non_taxable" | "exempt";
 
 export interface Account {
   id: number;
@@ -124,7 +124,7 @@ export interface Account {
 }
 
 // --- JournalEntry ---
-export type JournalStatus = "DRAFT" | "PENDING" | "APPROVED" | "REJECTED";
+export type JournalStatus = "draft" | "pending" | "approved" | "rejected";
 
 export interface JournalEntryLine {
   id: number;
@@ -164,8 +164,8 @@ export interface TrialBalanceResponse {
 }
 
 // --- KPI ---
-export type KpiPeriod = "MONTHLY" | "QUARTERLY" | "YEARLY";
-export type KpiType = "SALES_TARGET" | "CLOSE_RATE" | "CUSTOMER_ACQUISITION_COST" | "AVERAGE_CLOSE_DAYS" | "OCCUPANCY_RATE" | "RENT_COLLECTION_RATE";
+export type KpiPeriod = "monthly" | "quarterly" | "yearly";
+export type KpiType = "sales_target" | "close_rate" | "customer_acquisition_cost" | "average_close_days" | "occupancy_rate" | "rent_collection_rate";
 
 export interface KpiTarget {
   id: number;
@@ -190,8 +190,8 @@ export interface KpiDashboardItem {
 }
 
 // --- Document ---
-export type DocumentCategory = "DESIGN" | "REQUIREMENTS" | "RULES" | "PHILOSOPHY" | "SPECIFICATION" | "MANUAL" | "OTHER";
-export type DocumentStatus = "DRAFT" | "REVIEW" | "APPROVED" | "ARCHIVED";
+export type DocumentCategory = "design" | "requirements" | "rules" | "philosophy" | "specification" | "manual" | "other";
+export type DocumentStatus = "draft" | "review" | "approved" | "archived";
 
 export interface DocumentVersion {
   id: number;

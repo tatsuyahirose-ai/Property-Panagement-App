@@ -9,20 +9,20 @@ import { useApiList, useApiMutate } from "@/hooks/use-api";
 import type { Document } from "@/lib/types";
 
 const categoryLabels: Record<string, string> = {
-  DESIGN: "設計書",
-  REQUIREMENTS: "要件定義",
-  RULES: "ルール",
-  PHILOSOPHY: "設計思想",
-  SPECIFICATION: "仕様書",
-  MANUAL: "マニュアル",
-  OTHER: "その他",
+  design: "設計書",
+  requirements: "要件定義",
+  rules: "ルール",
+  philosophy: "設計思想",
+  specification: "仕様書",
+  manual: "マニュアル",
+  other: "その他",
 };
 
 const statusMap: Record<string, string> = {
-  DRAFT: "draft",
-  REVIEW: "review",
-  APPROVED: "approved",
-  ARCHIVED: "archived",
+  draft: "draft",
+  review: "review",
+  approved: "approved",
+  archived: "archived",
 };
 
 const columns = [
@@ -58,10 +58,10 @@ const columns = [
 
 const categoryOptions = Object.entries(categoryLabels).map(([v, l]) => ({ value: v, label: l }));
 const statusOptions = [
-  { value: "DRAFT", label: "下書き" },
-  { value: "REVIEW", label: "レビュー中" },
-  { value: "APPROVED", label: "承認済" },
-  { value: "ARCHIVED", label: "アーカイブ" },
+  { value: "draft", label: "下書き" },
+  { value: "review", label: "レビュー中" },
+  { value: "approved", label: "承認済" },
+  { value: "archived", label: "アーカイブ" },
 ];
 
 interface FormState {
@@ -71,7 +71,7 @@ interface FormState {
   content: string;
 }
 
-const emptyForm: FormState = { title: "", category: "", status: "DRAFT", content: "" };
+const emptyForm: FormState = { title: "", category: "", status: "draft", content: "" };
 
 export default function DocumentsPage() {
   const [filterCategory, setFilterCategory] = useState("");

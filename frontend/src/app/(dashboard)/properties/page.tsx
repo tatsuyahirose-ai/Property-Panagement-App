@@ -10,18 +10,19 @@ import { useApiList, useApiMutate } from "@/hooks/use-api";
 import type { Property } from "@/lib/types";
 
 const propertyTypeLabels: Record<string, string> = {
-  APARTMENT: "アパート",
-  MANSION: "マンション",
-  HOUSE: "一戸建て",
-  LAND: "土地",
-  BUILDING: "ビル",
-  OTHER: "その他",
+  apartment: "アパート",
+  mansion: "マンション",
+  house: "一戸建て",
+  office: "オフィス",
+  store: "店舗",
+  land: "土地",
+  other: "その他",
 };
 
 const statusLabels: Record<string, string> = {
-  AVAILABLE: "available",
-  CONTRACTED: "contracted",
-  UNAVAILABLE: "unavailable",
+  available: "available",
+  contracted: "contracted",
+  unavailable: "unavailable",
 };
 
 const columns = [
@@ -49,18 +50,19 @@ const columns = [
 ];
 
 const typeOptions = [
-  { value: "APARTMENT", label: "アパート" },
-  { value: "MANSION", label: "マンション" },
-  { value: "HOUSE", label: "一戸建て" },
-  { value: "LAND", label: "土地" },
-  { value: "BUILDING", label: "ビル" },
-  { value: "OTHER", label: "その他" },
+  { value: "apartment", label: "アパート" },
+  { value: "mansion", label: "マンション" },
+  { value: "house", label: "一戸建て" },
+  { value: "office", label: "オフィス" },
+  { value: "store", label: "店舗" },
+  { value: "land", label: "土地" },
+  { value: "other", label: "その他" },
 ];
 
 const statusOptions = [
-  { value: "AVAILABLE", label: "空室" },
-  { value: "CONTRACTED", label: "契約済" },
-  { value: "UNAVAILABLE", label: "非公開" },
+  { value: "available", label: "空室" },
+  { value: "contracted", label: "契約済" },
+  { value: "unavailable", label: "非公開" },
 ];
 
 interface FormState {
@@ -85,7 +87,7 @@ const emptyForm: FormState = {
   floor_area: "",
   rent_price: "",
   sale_price: "",
-  status: "AVAILABLE",
+  status: "available",
   description: "",
 };
 

@@ -61,15 +61,17 @@ export default function DashboardPage() {
 
     const fetchKpi = async () => {
       try {
+        const now = new Date();
+        const periodStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
         const [properties, kpiItems] = await Promise.all([
           apiFetch<Property[]>("/api/v1/properties/", { tenantId }).catch(() => [] as Property[]),
-          apiFetch<KpiDashboardItem[]>("/api/v1/kpi/dashboard", { tenantId }).catch(() => [] as KpiDashboardItem[]),
+          apiFetch<KpiDashboardItem[]>("/api/v1/kpi/dashboard", { tenantId, params: { period_start: periodStart } }).catch(() => [] as KpiDashboardItem[]),
         ]);
 
         const propertyCount = properties.length;
-        const salesTarget = kpiItems.find((k) => k.kpi_type === "SALES_TARGET");
-        const closeRate = kpiItems.find((k) => k.kpi_type === "CLOSE_RATE");
-        const occupancy = kpiItems.find((k) => k.kpi_type === "OCCUPANCY_RATE");
+        const salesTarget = kpiItems.find((k) => k.kpi_type === "sales_target");
+        const closeRate = kpiItems.find((k) => k.kpi_type === "close_rate");
+        const occupancy = kpiItems.find((k) => k.kpi_type === "occupancy_rate");
 
         setKpiCards([
           { label: "管理物件数", value: String(propertyCount), unit: "件", color: "bg-blue-500" },

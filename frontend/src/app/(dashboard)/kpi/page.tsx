@@ -7,19 +7,19 @@ import { useApiList, useApiMutate } from "@/hooks/use-api";
 import type { KpiTarget } from "@/lib/types";
 
 const kpiTypeLabels: Record<string, { label: string; unit: string }> = {
-  SALES_TARGET: { label: "売上目標達成率", unit: "%" },
-  CLOSE_RATE: { label: "成約率", unit: "%" },
-  CUSTOMER_ACQUISITION_COST: { label: "顧客獲得コスト", unit: "円" },
-  AVERAGE_CLOSE_DAYS: { label: "平均成約期間", unit: "日" },
-  OCCUPANCY_RATE: { label: "物件稼働率", unit: "%" },
-  RENT_COLLECTION_RATE: { label: "家賃回収率", unit: "%" },
+  sales_target: { label: "売上目標達成率", unit: "%" },
+  close_rate: { label: "成約率", unit: "%" },
+  customer_acquisition_cost: { label: "顧客獲得コスト", unit: "円" },
+  average_close_days: { label: "平均成約期間", unit: "日" },
+  occupancy_rate: { label: "物件稼働率", unit: "%" },
+  rent_collection_rate: { label: "家賃回収率", unit: "%" },
 };
 
 const kpiTypeOptions = Object.entries(kpiTypeLabels).map(([v, { label }]) => ({ value: v, label }));
 const periodOptions = [
-  { value: "MONTHLY", label: "月次" },
-  { value: "QUARTERLY", label: "四半期" },
-  { value: "YEARLY", label: "年次" },
+  { value: "monthly", label: "月次" },
+  { value: "quarterly", label: "四半期" },
+  { value: "yearly", label: "年次" },
 ];
 
 interface FormState {
@@ -30,7 +30,7 @@ interface FormState {
   actual_value: string;
 }
 
-const emptyForm: FormState = { kpi_type: "", period: "MONTHLY", period_start: "", target_value: "", actual_value: "" };
+const emptyForm: FormState = { kpi_type: "", period: "monthly", period_start: "", target_value: "", actual_value: "" };
 
 export default function KpiPage() {
   const { data, loading, error, refetch } = useApiList<KpiTarget>("/api/v1/kpi/targets");

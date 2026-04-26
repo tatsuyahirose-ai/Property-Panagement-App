@@ -9,10 +9,10 @@ import { useApiList, useApiMutate } from "@/hooks/use-api";
 import type { BusinessPartner } from "@/lib/types";
 
 const typeLabels: Record<string, string> = {
-  MANAGEMENT_COMPANY: "管理会社",
-  CONSTRUCTION: "工事業者",
-  FINANCIAL_INSTITUTION: "金融機関",
-  OTHER: "その他",
+  management_company: "管理会社",
+  contractor: "工事業者",
+  financial_institution: "金融機関",
+  other: "その他",
 };
 
 const columns = [
@@ -29,10 +29,10 @@ const columns = [
 ];
 
 const typeOptions = [
-  { value: "MANAGEMENT_COMPANY", label: "管理会社" },
-  { value: "CONSTRUCTION", label: "工事業者" },
-  { value: "FINANCIAL_INSTITUTION", label: "金融機関" },
-  { value: "OTHER", label: "その他" },
+  { value: "management_company", label: "管理会社" },
+  { value: "contractor", label: "工事業者" },
+  { value: "financial_institution", label: "金融機関" },
+  { value: "other", label: "その他" },
 ];
 
 interface FormState {

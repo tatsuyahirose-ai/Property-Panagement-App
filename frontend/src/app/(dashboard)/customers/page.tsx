@@ -10,14 +10,14 @@ import { useApiList, useApiMutate } from "@/hooks/use-api";
 import type { Customer } from "@/lib/types";
 
 const typeLabels: Record<string, string> = {
-  INDIVIDUAL: "個人",
-  CORPORATE: "法人",
+  individual: "個人",
+  corporate: "法人",
 };
 
 const statusMap: Record<string, string> = {
-  PROSPECT: "prospect",
-  ACTIVE: "active",
-  INACTIVE: "inactive",
+  prospect: "prospect",
+  active: "active",
+  inactive: "inactive",
 };
 
 const columns = [
@@ -40,14 +40,14 @@ const columns = [
 ];
 
 const typeOptions = [
-  { value: "INDIVIDUAL", label: "個人" },
-  { value: "CORPORATE", label: "法人" },
+  { value: "individual", label: "個人" },
+  { value: "corporate", label: "法人" },
 ];
 
 const statusOptions = [
-  { value: "PROSPECT", label: "見込み" },
-  { value: "ACTIVE", label: "有効" },
-  { value: "INACTIVE", label: "無効" },
+  { value: "prospect", label: "見込み" },
+  { value: "active", label: "有効" },
+  { value: "inactive", label: "無効" },
 ];
 
 interface FormState {
@@ -66,7 +66,7 @@ const emptyForm: FormState = {
   email: "",
   phone: "",
   customer_type: "",
-  status: "PROSPECT",
+  status: "prospect",
   address: "",
   company_name: "",
   notes: "",

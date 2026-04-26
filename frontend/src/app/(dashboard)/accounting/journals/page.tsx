@@ -9,10 +9,10 @@ import { useApiList, useApiMutate } from "@/hooks/use-api";
 import type { JournalEntry } from "@/lib/types";
 
 const statusMap: Record<string, string> = {
-  DRAFT: "draft",
-  PENDING: "pending",
-  APPROVED: "approved",
-  REJECTED: "rejected",
+  draft: "draft",
+  pending: "pending",
+  approved: "approved",
+  rejected: "rejected",
 };
 
 const columns = [

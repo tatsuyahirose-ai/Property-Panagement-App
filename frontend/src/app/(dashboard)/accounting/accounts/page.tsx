@@ -8,18 +8,17 @@ import { useApiList, useApiMutate } from "@/hooks/use-api";
 import type { Account } from "@/lib/types";
 
 const typeLabels: Record<string, string> = {
-  ASSET: "資産",
-  LIABILITY: "負債",
-  EQUITY: "純資産",
-  REVENUE: "収益",
-  EXPENSE: "費用",
+  asset: "資産",
+  liability: "負債",
+  equity: "純資産",
+  revenue: "収益",
+  expense: "費用",
 };
 
 const taxLabels: Record<string, string> = {
-  TAXABLE: "課税",
-  TAX_EXEMPT: "非課税",
-  NON_TAXABLE: "不課税",
-  TAX_FREE_EXPORT: "免税",
+  taxable: "課税",
+  non_taxable: "不課税",
+  exempt: "非課税",
 };
 
 const columns = [
@@ -59,7 +58,7 @@ interface FormState {
   description: string;
 }
 
-const emptyForm: FormState = { code: "", name: "", account_type: "", tax_category: "TAXABLE", description: "" };
+const emptyForm: FormState = { code: "", name: "", account_type: "", tax_category: "taxable", description: "" };
 
 export default function AccountsPage() {
   const { data, loading, error, refetch } = useApiList<Account>("/api/v1/accounts");

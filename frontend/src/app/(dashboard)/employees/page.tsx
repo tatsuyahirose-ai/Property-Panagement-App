@@ -9,17 +9,16 @@ import { useApiList, useApiMutate } from "@/hooks/use-api";
 import type { Employee } from "@/lib/types";
 
 const roleLabels: Record<string, string> = {
-  ADMIN: "管理者",
-  MANAGER: "マネージャー",
-  STAFF: "スタッフ",
-  VIEWER: "閲覧者",
+  admin: "管理者",
+  manager: "マネージャー",
+  staff: "スタッフ",
+  viewer: "閲覧者",
 };
 
 const statusMap: Record<string, string> = {
-  ACTIVE: "active",
-  INACTIVE: "inactive",
-  ON_LEAVE: "on_leave",
-  RETIRED: "retired",
+  active: "active",
+  on_leave: "on_leave",
+  retired: "retired",
 };
 
 const columns = [
@@ -42,17 +41,16 @@ const columns = [
 ];
 
 const roleOptions = [
-  { value: "ADMIN", label: "管理者" },
-  { value: "MANAGER", label: "マネージャー" },
-  { value: "STAFF", label: "スタッフ" },
-  { value: "VIEWER", label: "閲覧者" },
+  { value: "admin", label: "管理者" },
+  { value: "manager", label: "マネージャー" },
+  { value: "staff", label: "スタッフ" },
+  { value: "viewer", label: "閲覧者" },
 ];
 
 const statusOptions = [
-  { value: "ACTIVE", label: "有効" },
-  { value: "INACTIVE", label: "無効" },
-  { value: "ON_LEAVE", label: "休職中" },
-  { value: "RETIRED", label: "退職" },
+  { value: "active", label: "有効" },
+  { value: "on_leave", label: "休職中" },
+  { value: "retired", label: "退職" },
 ];
 
 interface FormState {
@@ -71,8 +69,8 @@ const emptyForm: FormState = {
   email: "",
   password: "",
   position: "",
-  role: "STAFF",
-  status: "ACTIVE",
+  role: "staff",
+  status: "active",
   hire_date: "",
   license_info: "",
 };
