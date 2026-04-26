@@ -61,7 +61,7 @@ export default function TrialBalancePage() {
                   const url = `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"}/api/v1/reports/trial-balance/pdf?period_start=${fetchedStart}&period_end=${fetchedEnd}`;
                   const link = document.createElement("a");
                   link.href = url;
-                  link.setAttribute("download", "");
+                  link.setAttribute("download", `trial_balance_${fetchedStart}_${fetchedEnd}.pdf`);
                   const token = document.cookie.split("; ").find((r) => r.startsWith("access_token="))?.split("=")[1];
                   const headers: Record<string, string> = { "X-Tenant-Id": String(user.tenant_id) };
                   if (token) headers["Authorization"] = `Bearer ${token}`;
