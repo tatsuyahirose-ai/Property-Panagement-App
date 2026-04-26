@@ -18,6 +18,8 @@ export default function TrialBalancePage() {
   const [periodStart, setPeriodStart] = useState("");
   const [periodEnd, setPeriodEnd] = useState("");
   const [data, setData] = useState<TrialBalanceResponse | null>(null);
+  const [fetchedStart, setFetchedStart] = useState("");
+  const [fetchedEnd, setFetchedEnd] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -31,6 +33,8 @@ export default function TrialBalancePage() {
         tenantId: user.tenant_id,
       });
       setData(result);
+      setFetchedStart(periodStart);
+      setFetchedEnd(periodEnd);
     } catch {
       setError("試算表の取得に失敗しました");
     } finally {
@@ -54,7 +58,7 @@ export default function TrialBalancePage() {
               <button
                 onClick={() => {
                   if (!user) return;
-                  const url = `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"}/api/v1/reports/trial-balance/pdf?period_start=${periodStart}&period_end=${periodEnd}`;
+                  const url = `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"}/api/v1/reports/trial-balance/pdf?period_start=${fetchedStart}&period_end=${fetchedEnd}`;
                   const link = document.createElement("a");
                   link.href = url;
                   link.setAttribute("download", "");
