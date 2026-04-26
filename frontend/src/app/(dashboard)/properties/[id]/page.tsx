@@ -62,7 +62,7 @@ export default function PropertyDetailPage({
             ← 戻る
           </Link>
           <h1 className="text-2xl font-bold text-gray-900">{property.name}</h1>
-          <StatusBadge status={statusLabels[property.status] ?? property.status} />
+          <StatusBadge status={property.status} />
         </div>
       </div>
 

@@ -11,6 +11,8 @@ from app.tenant import get_current_tenant
 
 router = APIRouter(prefix="/api/v1/employees", tags=["社員管理"])
 
+SORTABLE_COLUMNS = {"name", "email", "created_at"}
+
 
 @router.get("/", response_model=list[EmployeeResponse])
 def list_employees(
@@ -32,7 +34,7 @@ def list_employees(
         query = query.filter(Employee.department_id == department_id)
     if status:
         query = query.filter(Employee.status == status)
-    if sort_by and hasattr(Employee, sort_by):
+    if sort_by and sort_by in SORTABLE_COLUMNS:
         col = getattr(Employee, sort_by)
         query = query.order_by(col.desc() if sort_order == "desc" else col.asc())
     return list(query.offset(skip).limit(limit).all())

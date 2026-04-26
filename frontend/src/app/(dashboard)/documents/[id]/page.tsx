@@ -91,7 +91,7 @@ export default function DocumentDetailPage({
             ← 戻る
           </Link>
           <h1 className="text-2xl font-bold text-gray-900">{doc.title}</h1>
-          <StatusBadge status={statusLabels[doc.status] ?? doc.status} />
+          <StatusBadge status={doc.status} />
         </div>
       </div>
 

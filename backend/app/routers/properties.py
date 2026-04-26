@@ -11,6 +11,8 @@ from app.tenant import get_current_tenant
 
 router = APIRouter(prefix="/api/v1/properties", tags=["物件管理"])
 
+SORTABLE_COLUMNS = {"name", "address", "rent_price", "sale_price", "built_year", "created_at"}
+
 
 @router.get("/", response_model=list[PropertyResponse])
 def list_properties(
@@ -32,7 +34,7 @@ def list_properties(
         query = query.filter(Property.property_type == property_type)
     if status:
         query = query.filter(Property.status == status)
-    if sort_by and hasattr(Property, sort_by):
+    if sort_by and sort_by in SORTABLE_COLUMNS:
         col = getattr(Property, sort_by)
         query = query.order_by(col.desc() if sort_order == "desc" else col.asc())
     return list(query.offset(skip).limit(limit).all())

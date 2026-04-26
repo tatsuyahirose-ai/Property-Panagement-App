@@ -20,9 +20,9 @@ const propertyTypeLabels: Record<string, string> = {
 };
 
 const statusLabels: Record<string, string> = {
-  available: "空室",
-  contracted: "契約済",
-  unavailable: "非公開",
+  available: "available",
+  contracted: "contracted",
+  unavailable: "unavailable",
 };
 
 const columns = [

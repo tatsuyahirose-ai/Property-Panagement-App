@@ -59,7 +59,7 @@ export default function EmployeeDetailPage({
             ← 戻る
           </Link>
           <h1 className="text-2xl font-bold text-gray-900">{employee.name}</h1>
-          <StatusBadge status={statusLabels[employee.status] ?? employee.status} />
+          <StatusBadge status={employee.status} />
         </div>
       </div>
 

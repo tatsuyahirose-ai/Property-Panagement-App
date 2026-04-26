@@ -70,7 +70,7 @@ export default function DealDetailPage({
           <h1 className="text-2xl font-bold text-gray-900">
             案件 #{deal.id}
           </h1>
-          <StatusBadge status={statusLabels[deal.status] ?? deal.status} />
+          <StatusBadge status={deal.status} />
         </div>
       </div>
 
