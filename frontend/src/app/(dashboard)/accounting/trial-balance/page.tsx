@@ -60,12 +60,18 @@ export default function TrialBalancePage() {
                   link.setAttribute("download", "");
                   const headers: Record<string, string> = { "X-Tenant-Id": String(user.tenant_id) };
                   fetch(url, { headers, credentials: "include" })
-                    .then((res) => res.blob())
+                    .then((res) => {
+                      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                      return res.blob();
+                    })
                     .then((blob) => {
                       const blobUrl = URL.createObjectURL(blob);
                       link.href = blobUrl;
                       link.click();
                       URL.revokeObjectURL(blobUrl);
+                    })
+                    .catch(() => {
+                      alert("PDFの取得に失敗しました");
                     });
                 }}
                 className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700"
