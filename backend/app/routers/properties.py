@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from app.auth import get_current_employee
@@ -15,16 +16,25 @@ router = APIRouter(prefix="/api/v1/properties", tags=["物件管理"])
 def list_properties(
     skip: int = 0,
     limit: int = 100,
+    q: str | None = None,
     property_type: str | None = None,
     status: str | None = None,
+    sort_by: str | None = None,
+    sort_order: str = "asc",
     tenant: Tenant = Depends(get_current_tenant),
     db: Session = Depends(get_db),
 ) -> list[Property]:
     query = db.query(Property).filter(Property.tenant_id == tenant.id)
+    if q:
+        pattern = f"%{q}%"
+        query = query.filter(or_(Property.name.ilike(pattern), Property.address.ilike(pattern)))
     if property_type:
         query = query.filter(Property.property_type == property_type)
     if status:
         query = query.filter(Property.status == status)
+    if sort_by and hasattr(Property, sort_by):
+        col = getattr(Property, sort_by)
+        query = query.order_by(col.desc() if sort_order == "desc" else col.asc())
     return list(query.offset(skip).limit(limit).all())
 
 

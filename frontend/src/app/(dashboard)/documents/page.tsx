@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import DataTable from "@/components/data-table";
 import StatusBadge from "@/components/status-badge";
 import Modal from "@/components/modal";
@@ -26,7 +26,7 @@ const statusMap: Record<string, string> = {
 };
 
 const columns = [
-  { key: "title", label: "タイトル" },
+  { key: "title", label: "タイトル", sortable: true },
   {
     key: "category",
     label: "カテゴリ",
@@ -73,19 +73,28 @@ interface FormState {
 
 const emptyForm: FormState = { title: "", category: "", status: "draft", content: "" };
 
-export default function DocumentsPage() {
-  const [filterCategory, setFilterCategory] = useState("");
-  const [filterStatus, setFilterStatus] = useState("");
-  const params: Record<string, string | undefined> = {};
-  if (filterCategory) params.category = filterCategory;
-  if (filterStatus) params.status = filterStatus;
+const filters = [
+  { key: "category", label: "全てのカテゴリ", options: categoryOptions },
+  { key: "status", label: "全てのステータス", options: statusOptions },
+];
 
-  const { data, loading, error, refetch } = useApiList<Document>("/api/v1/documents/", params);
+export default function DocumentsPage() {
+  const [searchParams, setSearchParams] = useState<Record<string, string | undefined>>({});
+
+  const { data, loading, error, refetch } = useApiList<Document>("/api/v1/documents/", searchParams);
   const { mutate, loading: saving } = useApiMutate();
   const [modalOpen, setModalOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<Document | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [formError, setFormError] = useState<string | null>(null);
+
+  const handleSearch = useCallback((query: string) => {
+    setSearchParams((prev) => ({ ...prev, q: query || undefined }));
+  }, []);
+
+  const handleFilterChange = useCallback((key: string, value: string) => {
+    setSearchParams((prev) => ({ ...prev, [key]: value || undefined }));
+  }, []);
 
   const openAdd = () => { setEditTarget(null); setForm(emptyForm); setFormError(null); setModalOpen(true); };
 
@@ -124,18 +133,22 @@ export default function DocumentsPage() {
   return (
     <div>
       <h1 className="text-2xl font-bold text-gray-900 mb-6">ドキュメント管理</h1>
-      <p className="text-sm text-gray-500 mb-4">設計思想・要件定義・ルールをバージョン管理付きで保存し、仕様のブレを防ぎます。</p>
-      <div className="flex gap-2 mb-6">
-        <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm">
-          <option value="">全てのカテゴリ</option>
-          {categoryOptions.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-        </select>
-        <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm">
-          <option value="">全てのステータス</option>
-          {statusOptions.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-        </select>
-      </div>
-      <DataTable columns={columns} data={data as unknown as Record<string, unknown>[]} title="ドキュメント一覧" description="仕様書・設計書・ルール・設計思想のバージョン管理" addLabel="ドキュメントを追加" loading={loading} error={error} onAdd={openAdd} onEdit={openEdit} />
+      <DataTable
+        columns={columns}
+        data={data as unknown as Record<string, unknown>[]}
+        title="ドキュメント一覧"
+        description="仕様書・設計書・ルール・設計思想のバージョン管理"
+        addLabel="ドキュメントを追加"
+        loading={loading}
+        error={error}
+        onAdd={openAdd}
+        onEdit={openEdit}
+        onSearch={handleSearch}
+        searchPlaceholder="タイトルで検索..."
+        filters={filters}
+        onFilterChange={handleFilterChange}
+        detailPath="/documents"
+      />
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editTarget ? "ドキュメントを編集" : "ドキュメントを追加"}>
         <form onSubmit={handleSubmit} className="space-y-4">
           {formError && <div className="p-3 bg-red-50 text-red-700 text-sm rounded-lg">{formError}</div>}

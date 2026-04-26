@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import DataTable from "@/components/data-table";
 import StatusBadge from "@/components/status-badge";
 import Modal from "@/components/modal";
@@ -20,14 +20,14 @@ const propertyTypeLabels: Record<string, string> = {
 };
 
 const statusLabels: Record<string, string> = {
-  available: "available",
-  contracted: "contracted",
-  unavailable: "unavailable",
+  available: "空室",
+  contracted: "契約済",
+  unavailable: "非公開",
 };
 
 const columns = [
-  { key: "name", label: "物件名" },
-  { key: "address", label: "所在地" },
+  { key: "name", label: "物件名", sortable: true },
+  { key: "address", label: "所在地", sortable: true },
   {
     key: "property_type",
     label: "種別",
@@ -37,6 +37,7 @@ const columns = [
   {
     key: "rent_price",
     label: "賃料",
+    sortable: true,
     render: (item: Record<string, unknown>) =>
       item.rent_price ? `\u00a5${Number(item.rent_price).toLocaleString()}` : "-",
   },
@@ -63,6 +64,11 @@ const statusOptions = [
   { value: "available", label: "空室" },
   { value: "contracted", label: "契約済" },
   { value: "unavailable", label: "非公開" },
+];
+
+const filters = [
+  { key: "property_type", label: "全ての種別", options: typeOptions },
+  { key: "status", label: "全てのステータス", options: statusOptions },
 ];
 
 interface FormState {
@@ -107,13 +113,26 @@ function toPayload(form: FormState) {
 }
 
 export default function PropertiesPage() {
-  const { data, loading, error, refetch } = useApiList<Property>("/api/v1/properties/");
+  const [searchParams, setSearchParams] = useState<Record<string, string | undefined>>({});
+  const { data, loading, error, refetch } = useApiList<Property>("/api/v1/properties/", searchParams);
   const { mutate, loading: saving } = useApiMutate();
   const [modalOpen, setModalOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<Property | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Property | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [formError, setFormError] = useState<string | null>(null);
+
+  const handleSearch = useCallback((query: string) => {
+    setSearchParams((prev) => ({ ...prev, q: query || undefined }));
+  }, []);
+
+  const handleFilterChange = useCallback((key: string, value: string) => {
+    setSearchParams((prev) => ({ ...prev, [key]: value || undefined }));
+  }, []);
+
+  const handleSort = useCallback((key: string, order: "asc" | "desc") => {
+    setSearchParams((prev) => ({ ...prev, sort_by: key, sort_order: order }));
+  }, []);
 
   const openAdd = () => {
     setEditTarget(null);
@@ -191,6 +210,12 @@ export default function PropertiesPage() {
         onAdd={openAdd}
         onEdit={openEdit}
         onDelete={(item) => setDeleteTarget(item as unknown as Property)}
+        onSearch={handleSearch}
+        searchPlaceholder="物件名・所在地で検索..."
+        filters={filters}
+        onFilterChange={handleFilterChange}
+        onSort={handleSort}
+        detailPath="/properties"
       />
 
       <Modal

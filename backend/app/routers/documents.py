@@ -23,12 +23,15 @@ router = APIRouter(prefix="/api/v1/documents", tags=["ドキュメント管理"]
 def list_documents(
     skip: int = 0,
     limit: int = 100,
+    q: str | None = None,
     category: str | None = None,
     status: str | None = None,
     tenant: Tenant = Depends(get_current_tenant),
     db: Session = Depends(get_db),
 ) -> list[Document]:
     query = db.query(Document).filter(Document.tenant_id == tenant.id)
+    if q:
+        query = query.filter(Document.title.ilike(f"%{q}%"))
     if category:
         query = query.filter(Document.category == category)
     if status:

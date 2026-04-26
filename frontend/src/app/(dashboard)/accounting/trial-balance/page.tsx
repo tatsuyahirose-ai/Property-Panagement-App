@@ -50,6 +50,29 @@ export default function TrialBalancePage() {
             <button onClick={handleFetch} disabled={loading} className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50">
               {loading ? "取得中..." : "表示"}
             </button>
+            {data && (
+              <button
+                onClick={() => {
+                  if (!user) return;
+                  const url = `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"}/api/v1/reports/trial-balance/pdf?period_start=${periodStart}&period_end=${periodEnd}`;
+                  const link = document.createElement("a");
+                  link.href = url;
+                  link.setAttribute("download", "");
+                  const headers: Record<string, string> = { "X-Tenant-Id": String(user.tenant_id) };
+                  fetch(url, { headers, credentials: "include" })
+                    .then((res) => res.blob())
+                    .then((blob) => {
+                      const blobUrl = URL.createObjectURL(blob);
+                      link.href = blobUrl;
+                      link.click();
+                      URL.revokeObjectURL(blobUrl);
+                    });
+                }}
+                className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700"
+              >
+                PDF出力
+              </button>
+            )}
           </div>
         </div>
         {error && <div className="mb-4 p-3 bg-red-50 text-red-700 text-sm rounded-lg">{error}</div>}

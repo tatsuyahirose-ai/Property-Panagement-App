@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import Modal from "@/components/modal";
 import FormField from "@/components/form-field";
 import { useApiList, useApiMutate } from "@/hooks/use-api";
@@ -105,12 +106,12 @@ export default function DealsPage() {
                   <p className="text-xs text-gray-400 text-center mt-10">案件なし</p>
                 ) : (
                   stage.deals.map((deal) => (
-                    <div key={deal.id} className="p-2 bg-gray-50 rounded-lg border border-gray-100">
+                    <Link key={deal.id} href={`/deals/${deal.id}`} className="block p-2 bg-gray-50 rounded-lg border border-gray-100 hover:bg-blue-50 hover:border-blue-200 transition-colors">
                       <p className="text-xs font-medium text-gray-700">{dealTypeLabels[deal.deal_type] ?? deal.deal_type}</p>
                       {deal.expected_revenue != null && (
                         <p className="text-xs text-gray-500 mt-1">{`\u00a5${deal.expected_revenue.toLocaleString()}`}</p>
                       )}
-                    </div>
+                    </Link>
                   ))
                 )}
               </div>

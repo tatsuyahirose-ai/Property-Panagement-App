@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from app.auth import get_current_employee, get_password_hash
@@ -15,16 +16,25 @@ router = APIRouter(prefix="/api/v1/employees", tags=["社員管理"])
 def list_employees(
     skip: int = 0,
     limit: int = 100,
+    q: str | None = None,
     department_id: int | None = None,
     status: str | None = None,
+    sort_by: str | None = None,
+    sort_order: str = "asc",
     tenant: Tenant = Depends(get_current_tenant),
     db: Session = Depends(get_db),
 ) -> list[Employee]:
     query = db.query(Employee).filter(Employee.tenant_id == tenant.id)
+    if q:
+        pattern = f"%{q}%"
+        query = query.filter(or_(Employee.name.ilike(pattern), Employee.email.ilike(pattern)))
     if department_id:
         query = query.filter(Employee.department_id == department_id)
     if status:
         query = query.filter(Employee.status == status)
+    if sort_by and hasattr(Employee, sort_by):
+        col = getattr(Employee, sort_by)
+        query = query.order_by(col.desc() if sort_order == "desc" else col.asc())
     return list(query.offset(skip).limit(limit).all())
 
 
