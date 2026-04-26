@@ -28,8 +28,11 @@ def list_employees(
 ) -> list[Employee]:
     query = db.query(Employee).filter(Employee.tenant_id == tenant.id)
     if q:
-        pattern = f"%{q}%"
-        query = query.filter(or_(Employee.name.ilike(pattern), Employee.email.ilike(pattern)))
+        escaped = q.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+        pattern = f"%{escaped}%"
+        query = query.filter(
+            or_(Employee.name.ilike(pattern, escape="\\"), Employee.email.ilike(pattern, escape="\\"))
+        )
     if department_id:
         query = query.filter(Employee.department_id == department_id)
     if status:

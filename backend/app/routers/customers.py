@@ -28,9 +28,14 @@ def list_customers(
 ) -> list[Customer]:
     query = db.query(Customer).filter(Customer.tenant_id == tenant.id)
     if q:
-        pattern = f"%{q}%"
+        escaped = q.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+        pattern = f"%{escaped}%"
         query = query.filter(
-            or_(Customer.name.ilike(pattern), Customer.email.ilike(pattern), Customer.phone.ilike(pattern))
+            or_(
+                Customer.name.ilike(pattern, escape="\\"),
+                Customer.email.ilike(pattern, escape="\\"),
+                Customer.phone.ilike(pattern, escape="\\"),
+            )
         )
     if customer_type:
         query = query.filter(Customer.customer_type == customer_type)

@@ -28,8 +28,11 @@ def list_properties(
 ) -> list[Property]:
     query = db.query(Property).filter(Property.tenant_id == tenant.id)
     if q:
-        pattern = f"%{q}%"
-        query = query.filter(or_(Property.name.ilike(pattern), Property.address.ilike(pattern)))
+        escaped = q.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+        pattern = f"%{escaped}%"
+        query = query.filter(
+            or_(Property.name.ilike(pattern, escape="\\"), Property.address.ilike(pattern, escape="\\"))
+        )
     if property_type:
         query = query.filter(Property.property_type == property_type)
     if status:

@@ -31,7 +31,8 @@ def list_documents(
 ) -> list[Document]:
     query = db.query(Document).filter(Document.tenant_id == tenant.id)
     if q:
-        query = query.filter(Document.title.ilike(f"%{q}%"))
+        escaped = q.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+        query = query.filter(Document.title.ilike(f"%{escaped}%", escape="\\"))
     if category:
         query = query.filter(Document.category == category)
     if status:
