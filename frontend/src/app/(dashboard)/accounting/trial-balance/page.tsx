@@ -6,11 +6,11 @@ import { apiFetch } from "@/lib/api-client";
 import type { TrialBalanceResponse } from "@/lib/types";
 
 const typeLabels: Record<string, string> = {
-  ASSET: "資産",
-  LIABILITY: "負債",
-  EQUITY: "純資産",
-  REVENUE: "収益",
-  EXPENSE: "費用",
+  asset: "資産",
+  liability: "負債",
+  equity: "純資産",
+  revenue: "収益",
+  expense: "費用",
 };
 
 export default function TrialBalancePage() {

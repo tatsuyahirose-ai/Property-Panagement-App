@@ -65,7 +65,7 @@ export default function DashboardPage() {
         const periodStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
         const [properties, kpiItems] = await Promise.all([
           apiFetch<Property[]>("/api/v1/properties/", { tenantId }).catch(() => [] as Property[]),
-          apiFetch<KpiDashboardItem[]>("/api/v1/kpi/dashboard", { tenantId, params: { period_start: periodStart } }).catch(() => [] as KpiDashboardItem[]),
+          apiFetch<{ items: KpiDashboardItem[] }>("/api/v1/kpi/dashboard", { tenantId, params: { period_start: periodStart } }).then((res) => res.items).catch(() => [] as KpiDashboardItem[]),
         ]);
 
         const propertyCount = properties.length;
