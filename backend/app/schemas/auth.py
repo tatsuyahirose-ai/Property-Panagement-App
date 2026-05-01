@@ -15,6 +15,17 @@ class TokenResponse(BaseModel):
     token_type: str = "bearer"
 
 
+class PasswordChangeRequest(BaseModel):
+    current_password: str
+    new_password: str
+
+
+class ProfileUpdateRequest(BaseModel):
+    name: str | None = None
+    email: str | None = None
+    position: str | None = None
+
+
 class MeResponse(BaseModel):
     id: int
     tenant_id: int

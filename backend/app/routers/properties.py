@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
+from app.activity import log_activity
 from app.auth import get_current_employee
 from app.database import get_db
 from app.models.master import Employee, Property
@@ -54,6 +55,7 @@ def create_property(
     db.add(prop)
     db.commit()
     db.refresh(prop)
+    log_activity(db, tenant.id, "create", "property", prop.id, prop.name, current_employee.id, current_employee.name)
     return prop
 
 
@@ -84,6 +86,7 @@ def update_property(
         setattr(prop, key, value)
     db.commit()
     db.refresh(prop)
+    log_activity(db, tenant.id, "update", "property", prop.id, prop.name, current_employee.id, current_employee.name)
     return prop
 
 
@@ -97,5 +100,8 @@ def delete_property(
     prop = db.query(Property).filter(Property.id == property_id, Property.tenant_id == tenant.id).first()
     if not prop:
         raise HTTPException(status_code=404, detail="物件が見つかりません")
+    prop_name = prop.name
+    prop_id = prop.id
     db.delete(prop)
     db.commit()
+    log_activity(db, tenant.id, "delete", "property", prop_id, prop_name, current_employee.id, current_employee.name)

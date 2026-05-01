@@ -1,4 +1,5 @@
 from app.models.accounting import Account, JournalEntry, JournalEntryLine
+from app.models.activity_log import ActivityLog
 from app.models.deal import Deal
 from app.models.document import Document, DocumentVersion
 from app.models.kpi import KpiTarget
@@ -19,4 +20,5 @@ __all__ = [
     "KpiTarget",
     "Document",
     "DocumentVersion",
+    "ActivityLog",
 ]

@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from app.activity import log_activity
 from app.auth import get_current_employee
 from app.database import get_db
 from app.models.deal import Deal
@@ -43,6 +44,11 @@ def create_deal(
     db.add(deal)
     db.commit()
     db.refresh(deal)
+    log_activity(
+        db, tenant.id, "create", "deal",
+        deal.id, f"案件#{deal.id}",
+        current_employee.id, current_employee.name,
+    )
     return deal
 
 
@@ -73,6 +79,11 @@ def update_deal(
         setattr(deal, key, value)
     db.commit()
     db.refresh(deal)
+    log_activity(
+        db, tenant.id, "update", "deal",
+        deal.id, f"案件#{deal.id}",
+        current_employee.id, current_employee.name,
+    )
     return deal
 
 
@@ -90,4 +101,9 @@ def update_deal_stage(
     deal.stage = stage  # type: ignore[assignment]
     db.commit()
     db.refresh(deal)
+    log_activity(
+        db, tenant.id, "stage_update", "deal",
+        deal.id, f"案件#{deal.id} → {stage}",
+        current_employee.id, current_employee.name,
+    )
     return deal

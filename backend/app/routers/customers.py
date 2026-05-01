@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
+from app.activity import log_activity
 from app.auth import get_current_employee
 from app.database import get_db
 from app.models.master import Customer, Employee
@@ -58,6 +59,11 @@ def create_customer(
     db.add(customer)
     db.commit()
     db.refresh(customer)
+    log_activity(
+        db, tenant.id, "create", "customer",
+        customer.id, customer.name,
+        current_employee.id, current_employee.name,
+    )
     return customer
 
 
@@ -88,6 +94,11 @@ def update_customer(
         setattr(customer, key, value)
     db.commit()
     db.refresh(customer)
+    log_activity(
+        db, tenant.id, "update", "customer",
+        customer.id, customer.name,
+        current_employee.id, current_employee.name,
+    )
     return customer
 
 
@@ -101,5 +112,12 @@ def delete_customer(
     customer = db.query(Customer).filter(Customer.id == customer_id, Customer.tenant_id == tenant.id).first()
     if not customer:
         raise HTTPException(status_code=404, detail="顧客が見つかりません")
+    cust_name = customer.name
+    cust_id = customer.id
     db.delete(customer)
     db.commit()
+    log_activity(
+        db, tenant.id, "delete", "customer",
+        cust_id, cust_name,
+        current_employee.id, current_employee.name,
+    )
