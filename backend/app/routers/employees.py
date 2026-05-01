@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from app.auth import get_current_employee, get_password_hash
@@ -10,21 +11,35 @@ from app.tenant import get_current_tenant
 
 router = APIRouter(prefix="/api/v1/employees", tags=["社員管理"])
 
+SORTABLE_COLUMNS = {"name", "email", "created_at"}
+
 
 @router.get("/", response_model=list[EmployeeResponse])
 def list_employees(
     skip: int = 0,
     limit: int = 100,
+    q: str | None = None,
     department_id: int | None = None,
     status: str | None = None,
+    sort_by: str | None = None,
+    sort_order: str = "asc",
     tenant: Tenant = Depends(get_current_tenant),
     db: Session = Depends(get_db),
 ) -> list[Employee]:
     query = db.query(Employee).filter(Employee.tenant_id == tenant.id)
+    if q:
+        escaped = q.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+        pattern = f"%{escaped}%"
+        query = query.filter(
+            or_(Employee.name.ilike(pattern, escape="\\"), Employee.email.ilike(pattern, escape="\\"))
+        )
     if department_id:
         query = query.filter(Employee.department_id == department_id)
     if status:
         query = query.filter(Employee.status == status)
+    if sort_by and sort_by in SORTABLE_COLUMNS:
+        col = getattr(Employee, sort_by)
+        query = query.order_by(col.desc() if sort_order == "desc" else col.asc())
     return list(query.offset(skip).limit(limit).all())
 
 

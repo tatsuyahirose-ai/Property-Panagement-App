@@ -61,6 +61,60 @@ export function useApiList<T>(
   return { data, loading, error, refetch: doFetch };
 }
 
+interface UseApiDetailResult<T> {
+  data: T | null;
+  loading: boolean;
+  error: string | null;
+  refetch: () => void;
+}
+
+export function useApiDetail<T>(
+  path: string | null
+): UseApiDetailResult<T> {
+  const { user } = useAuth();
+  const [data, setData] = useState<T | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const fetchIdRef = useRef(0);
+
+  const doFetch = useCallback(() => {
+    if (!user || !path) {
+      setData(null);
+      setLoading(false);
+      return;
+    }
+    const id = ++fetchIdRef.current;
+    setLoading(true);
+    setError(null);
+    apiFetch<T>(path, { tenantId: user.tenant_id })
+      .then((result) => {
+        if (id === fetchIdRef.current) {
+          setData(result);
+          setLoading(false);
+        }
+      })
+      .catch((err: unknown) => {
+        if (id === fetchIdRef.current) {
+          setError(err instanceof ApiError ? err.detail : "データの取得に失敗しました");
+          setLoading(false);
+        }
+      });
+  }, [path, user]);
+
+  const mountedRef2 = useRef(false);
+
+  useEffect(() => {
+    if (!mountedRef2.current) {
+      mountedRef2.current = true;
+      doFetch();
+      return;
+    }
+    doFetch();
+  }, [doFetch]);
+
+  return { data, loading, error, refetch: doFetch };
+}
+
 interface MutateOptions {
   method: string;
   body?: unknown;

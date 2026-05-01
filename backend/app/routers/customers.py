@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from app.auth import get_current_employee
@@ -10,21 +11,39 @@ from app.tenant import get_current_tenant
 
 router = APIRouter(prefix="/api/v1/customers", tags=["顧客管理"])
 
+SORTABLE_COLUMNS = {"name", "email", "created_at"}
+
 
 @router.get("/", response_model=list[CustomerResponse])
 def list_customers(
     skip: int = 0,
     limit: int = 100,
+    q: str | None = None,
     customer_type: str | None = None,
     status: str | None = None,
+    sort_by: str | None = None,
+    sort_order: str = "asc",
     tenant: Tenant = Depends(get_current_tenant),
     db: Session = Depends(get_db),
 ) -> list[Customer]:
     query = db.query(Customer).filter(Customer.tenant_id == tenant.id)
+    if q:
+        escaped = q.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+        pattern = f"%{escaped}%"
+        query = query.filter(
+            or_(
+                Customer.name.ilike(pattern, escape="\\"),
+                Customer.email.ilike(pattern, escape="\\"),
+                Customer.phone.ilike(pattern, escape="\\"),
+            )
+        )
     if customer_type:
         query = query.filter(Customer.customer_type == customer_type)
     if status:
         query = query.filter(Customer.status == status)
+    if sort_by and sort_by in SORTABLE_COLUMNS:
+        col = getattr(Customer, sort_by)
+        query = query.order_by(col.desc() if sort_order == "desc" else col.asc())
     return list(query.offset(skip).limit(limit).all())
 
 

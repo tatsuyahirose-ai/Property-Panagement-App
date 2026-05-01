@@ -1,6 +1,15 @@
+import io
 from datetime import date
 
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import StreamingResponse
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.styles import ParagraphStyle
+from reportlab.lib.units import mm
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.cidfonts import UnicodeCIDFont
+from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 from sqlalchemy import func as sql_func
 from sqlalchemy.orm import Session
 
@@ -20,6 +29,8 @@ from app.schemas.accounting import (
     TrialBalanceResponse,
 )
 from app.tenant import get_current_tenant
+
+pdfmetrics.registerFont(UnicodeCIDFont("HeiseiKakuGo-W5"))
 
 router = APIRouter(prefix="/api/v1", tags=["会計管理"])
 
@@ -227,3 +238,71 @@ def get_trial_balance(
         )
 
     return TrialBalanceResponse(period_start=period_start, period_end=period_end, items=items)
+
+
+TYPE_LABELS = {
+    "asset": "資産",
+    "liability": "負債",
+    "equity": "純資産",
+    "revenue": "収益",
+    "expense": "費用",
+}
+
+
+@router.get("/reports/trial-balance/pdf")
+def export_trial_balance_pdf(
+    period_start: date,
+    period_end: date,
+    current_employee: Employee = Depends(get_current_employee),
+    tenant: Tenant = Depends(get_current_tenant),
+    db: Session = Depends(get_db),
+) -> StreamingResponse:
+    tb = get_trial_balance(period_start, period_end, tenant, db)
+    buf = io.BytesIO()
+    doc = SimpleDocTemplate(buf, pagesize=A4, topMargin=20 * mm, bottomMargin=15 * mm)
+    font = "HeiseiKakuGo-W5"
+
+    header = [["コード", "科目名", "区分", "借方合計", "貸方合計", "残高"]]
+    rows = []
+    for item in tb.items:
+        rows.append([
+            item.account_code,
+            item.account_name,
+            TYPE_LABELS.get(item.account_type, item.account_type),
+            f"\u00a5{item.debit_total:,.0f}",
+            f"\u00a5{item.credit_total:,.0f}",
+            f"\u00a5{item.balance:,.0f}",
+        ])
+
+    if not rows:
+        rows.append(["", "該当するデータがありません", "", "", "", ""])
+
+    table_data = header + rows
+    col_widths = [60, 140, 60, 80, 80, 80]
+    table = Table(table_data, colWidths=col_widths)
+    style = TableStyle([
+        ("FONTNAME", (0, 0), (-1, -1), font),
+        ("FONTSIZE", (0, 0), (-1, -1), 9),
+        ("FONTSIZE", (0, 0), (-1, 0), 10),
+        ("BACKGROUND", (0, 0), (-1, 0), colors.Color(0.2, 0.4, 0.8)),
+        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+        ("ALIGN", (3, 0), (5, -1), "RIGHT"),
+        ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+        ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.Color(0.95, 0.95, 0.95)]),
+        ("TOPPADDING", (0, 0), (-1, -1), 4),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+    ])
+    table.setStyle(style)
+
+    title_text = f"試算表  {period_start} 〜 {period_end}"
+    title_style = ParagraphStyle("Title", fontName=font, fontSize=16, spaceAfter=12)
+    elements = [Paragraph(title_text, title_style), Spacer(1, 6 * mm), table]
+    doc.build(elements)
+    buf.seek(0)
+
+    filename = f"trial_balance_{period_start}_{period_end}.pdf"
+    return StreamingResponse(
+        buf,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )

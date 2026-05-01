@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import DataTable from "@/components/data-table";
 import StatusBadge from "@/components/status-badge";
 import Modal from "@/components/modal";
@@ -21,8 +21,8 @@ const statusMap: Record<string, string> = {
 };
 
 const columns = [
-  { key: "name", label: "氏名" },
-  { key: "email", label: "メール" },
+  { key: "name", label: "氏名", sortable: true },
+  { key: "email", label: "メール", sortable: true },
   { key: "phone", label: "電話番号" },
   {
     key: "customer_type",
@@ -85,14 +85,32 @@ function toPayload(form: FormState) {
   };
 }
 
+const filters = [
+  { key: "customer_type", label: "全ての種別", options: typeOptions },
+  { key: "status", label: "全てのステータス", options: statusOptions },
+];
+
 export default function CustomersPage() {
-  const { data, loading, error, refetch } = useApiList<Customer>("/api/v1/customers/");
+  const [searchParams, setSearchParams] = useState<Record<string, string | undefined>>({});
+  const { data, loading, error, refetch } = useApiList<Customer>("/api/v1/customers/", searchParams);
   const { mutate, loading: saving } = useApiMutate();
   const [modalOpen, setModalOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<Customer | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Customer | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [formError, setFormError] = useState<string | null>(null);
+
+  const handleSearch = useCallback((query: string) => {
+    setSearchParams((prev) => ({ ...prev, q: query || undefined }));
+  }, []);
+
+  const handleFilterChange = useCallback((key: string, value: string) => {
+    setSearchParams((prev) => ({ ...prev, [key]: value || undefined }));
+  }, []);
+
+  const handleSort = useCallback((key: string, order: "asc" | "desc") => {
+    setSearchParams((prev) => ({ ...prev, sort_by: key, sort_order: order }));
+  }, []);
 
   const openAdd = () => {
     setEditTarget(null);
@@ -162,6 +180,12 @@ export default function CustomersPage() {
         onAdd={openAdd}
         onEdit={openEdit}
         onDelete={(item) => setDeleteTarget(item as unknown as Customer)}
+        onSearch={handleSearch}
+        searchPlaceholder="氏名・メール・電話で検索..."
+        filters={filters}
+        onFilterChange={handleFilterChange}
+        onSort={handleSort}
+        detailPath="/customers"
       />
 
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editTarget ? "顧客を編集" : "顧客を追加"}>

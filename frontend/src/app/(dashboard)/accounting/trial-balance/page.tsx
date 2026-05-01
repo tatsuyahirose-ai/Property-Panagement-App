@@ -18,6 +18,8 @@ export default function TrialBalancePage() {
   const [periodStart, setPeriodStart] = useState("");
   const [periodEnd, setPeriodEnd] = useState("");
   const [data, setData] = useState<TrialBalanceResponse | null>(null);
+  const [fetchedStart, setFetchedStart] = useState("");
+  const [fetchedEnd, setFetchedEnd] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -31,6 +33,8 @@ export default function TrialBalancePage() {
         tenantId: user.tenant_id,
       });
       setData(result);
+      setFetchedStart(periodStart);
+      setFetchedEnd(periodEnd);
     } catch {
       setError("試算表の取得に失敗しました");
     } finally {
@@ -50,6 +54,37 @@ export default function TrialBalancePage() {
             <button onClick={handleFetch} disabled={loading} className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50">
               {loading ? "取得中..." : "表示"}
             </button>
+            {data && (
+              <button
+                onClick={() => {
+                  if (!user) return;
+                  const url = `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"}/api/v1/reports/trial-balance/pdf?period_start=${fetchedStart}&period_end=${fetchedEnd}`;
+                  const link = document.createElement("a");
+                  link.href = url;
+                  link.setAttribute("download", `trial_balance_${fetchedStart}_${fetchedEnd}.pdf`);
+                  const token = document.cookie.split("; ").find((r) => r.startsWith("access_token="))?.split("=")[1];
+                  const headers: Record<string, string> = { "X-Tenant-Id": String(user.tenant_id) };
+                  if (token) headers["Authorization"] = `Bearer ${token}`;
+                  fetch(url, { headers, credentials: "include" })
+                    .then((res) => {
+                      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                      return res.blob();
+                    })
+                    .then((blob) => {
+                      const blobUrl = URL.createObjectURL(blob);
+                      link.href = blobUrl;
+                      link.click();
+                      setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+                    })
+                    .catch(() => {
+                      alert("PDFの取得に失敗しました");
+                    });
+                }}
+                className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700"
+              >
+                PDF出力
+              </button>
+            )}
           </div>
         </div>
         {error && <div className="mb-4 p-3 bg-red-50 text-red-700 text-sm rounded-lg">{error}</div>}
