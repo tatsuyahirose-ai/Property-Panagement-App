@@ -55,11 +55,14 @@ def update_profile(
         setattr(current_employee, key, value)
     try:
         db.commit()
-    except IntegrityError:
+    except IntegrityError as exc:
         db.rollback()
+        detail = "データの整合性エラーが発生しました"
+        if exc.orig and "unique" in str(exc.orig).lower():
+            detail = "このメールアドレスは既に使用されています"
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="このメールアドレスは既に使用されています",
+            detail=detail,
         )
     db.refresh(current_employee)
     return current_employee
