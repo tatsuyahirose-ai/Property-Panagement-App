@@ -20,6 +20,7 @@ interface AuthState {
 interface AuthContextType extends AuthState {
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
+  refreshUser: () => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -28,6 +29,7 @@ const AuthContext = createContext<AuthContextType>({
   loading: true,
   login: async () => {},
   logout: () => {},
+  refreshUser: () => {},
 });
 
 function getStoredToken(): string | null {
@@ -89,8 +91,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     window.location.href = "/login";
   }, []);
 
+  const refreshUser = useCallback(() => {
+    const token = getStoredToken();
+    if (!token) return;
+    fetchMe(token)
+      .then((me) => setState((prev) => ({ ...prev, user: me })))
+      .catch(() => {});
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ ...state, login, logout }}>
+    <AuthContext.Provider value={{ ...state, login, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

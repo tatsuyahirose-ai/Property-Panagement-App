@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/auth-context";
@@ -17,6 +18,7 @@ const navigation = [
   { name: "KPI", href: "/kpi", icon: "🎯" },
   { name: "案件管理", href: "/deals", icon: "💼" },
   { name: "ドキュメント", href: "/documents", icon: "📄" },
+  { name: "設定", href: "/settings", icon: "⚙️" },
 ];
 
 const roleLabels: Record<string, string> = {
@@ -29,14 +31,25 @@ const roleLabels: Record<string, string> = {
 export default function Sidebar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
-  return (
-    <aside className="flex w-64 flex-col bg-white border-r border-gray-200 min-h-screen">
-      <div className="p-4 border-b border-gray-200">
-        <h1 className="text-lg font-bold text-gray-900">不動産業務管理</h1>
-        <p className="text-xs text-gray-500 mt-1">マルチテナント対応</p>
+  const navContent = (
+    <>
+      <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+        <div>
+          <h1 className="text-lg font-bold text-gray-900">不動産業務管理</h1>
+          <p className="text-xs text-gray-500 mt-1">マルチテナント対応</p>
+        </div>
+        <button
+          onClick={() => setMobileOpen(false)}
+          className="lg:hidden p-1 rounded-md hover:bg-gray-100"
+        >
+          <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
       </div>
-      <nav className="flex-1 p-2">
+      <nav className="flex-1 p-2 overflow-y-auto">
         {navigation.map((item) => {
           const isActive =
             pathname === item.href ||
@@ -45,6 +58,7 @@ export default function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
+              onClick={() => setMobileOpen(false)}
               className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                 isActive
                   ? "bg-blue-50 text-blue-700"
@@ -74,6 +88,43 @@ export default function Sidebar() {
           </button>
         </div>
       )}
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* Mobile hamburger button */}
+      <button
+        onClick={() => setMobileOpen(true)}
+        className="lg:hidden fixed top-3 left-3 z-40 p-2 rounded-lg bg-white shadow-md border border-gray-200"
+        aria-label="メニューを開く"
+      >
+        <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <div
+          className="lg:hidden fixed inset-0 bg-black/30 z-40"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+
+      {/* Mobile drawer */}
+      <aside
+        className={`lg:hidden fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-white border-r border-gray-200 transform transition-transform duration-200 ${
+          mobileOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        {navContent}
+      </aside>
+
+      {/* Desktop sidebar */}
+      <aside className="hidden lg:flex w-64 flex-col bg-white border-r border-gray-200 min-h-screen shrink-0">
+        {navContent}
+      </aside>
+    </>
   );
 }

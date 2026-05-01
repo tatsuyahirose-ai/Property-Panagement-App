@@ -4,8 +4,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.routers import (
     accounting,
+    activity_logs,
     auth,
     customers,
+    dashboard,
     deals,
     departments,
     documents,
@@ -41,6 +43,8 @@ app.include_router(accounting.router)
 app.include_router(deals.router)
 app.include_router(kpi.router)
 app.include_router(documents.router)
+app.include_router(activity_logs.router)
+app.include_router(dashboard.router)
 
 
 @app.get("/api/v1/health")
