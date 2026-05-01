@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.auth import (
@@ -52,7 +53,14 @@ def update_profile(
 ) -> Employee:
     for key, value in data.model_dump(exclude_unset=True).items():
         setattr(current_employee, key, value)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="このメールアドレスは既に使用されています",
+        )
     db.refresh(current_employee)
     return current_employee
 

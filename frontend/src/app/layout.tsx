@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/auth-context";
@@ -17,17 +17,18 @@ export const metadata: Metadata = {
   title: "不動産業務管理システム",
   description: "不動産業向けマルチテナント統合業務管理システム",
   manifest: "/manifest.json",
-  themeColor: "#3B82F6",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
     title: "不動産管理",
   },
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#3B82F6",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
 };
 
 export default function RootLayout({
